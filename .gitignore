@@ -1,0 +1,22 @@
+# secrets
+.env
+
+# python
+__pycache__/
+*.pyc
+venv/
+.venv/
+env/
+
+# generated data / index
+vectorstore/*.faiss
+vectorstore/*.pkl
+data/jobs/*.csv
+!data/jobs/.gitkeep
+!data/resumes/.gitkeep
+!data/career_notes/.gitkeep
+!vectorstore/.gitkeep
+
+# OS / editor
+.DS_Store
+.vscode/
