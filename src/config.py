@@ -26,6 +26,18 @@ CAREER_INDEX_PATH = VECTORSTORE_DIR / "career_index"
 # --- App params ---
 TOP_N_JOBS = 5
 
+# --- Job CSV column names ---
+# The Naukri Kaggle dataset's exact headers vary slightly by upload.
+# job_search.py auto-detects from these candidate lists, so you usually
+# don't need to touch this — but if detection fails, hardcode the exact
+# column names here after checking your CSV in Excel.
+JOB_TITLE_COL_CANDIDATES = ["jobtitle", "Job Title", "job_title", "Title"]
+JOB_SKILLS_COL_CANDIDATES = ["skills", "Key Skills", "Skills"]
+JOB_DESC_COL_CANDIDATES = ["jobdescription", "Job Description", "Role", "job_description", "description"]
+JOB_LOCATION_COL_CANDIDATES = ["joblocation_address", "Location", "location"]
+CAREER_CHUNK_SIZE = 500
+CAREER_CHUNK_OVERLAP = 50
+
 
 def require_api_key():
     """Call this before making any LLM call — fails fast with a clear message."""

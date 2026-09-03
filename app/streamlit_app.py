@@ -47,7 +47,32 @@ with tab_parse:
                 st.json(profile.model_dump())
 
 with tab_jobs:
-    st.info("Coming in Week 2: semantic job search over the FAISS job index.")
+   with tab_jobs:
+    st.subheader("Jobs matched to your profile")
+    profile = st.session_state.get("profile")
+
+    if not profile:
+        st.info("Parse a resume in Tab 1 first — job matching uses your extracted profile.")
+    else:
+        if st.button("Find matching jobs"):
+            with st.spinner("Searching the job index..."):
+                try:
+                    from src.search.job_search import search_jobs_for_profile
+                    jobs = search_jobs_for_profile(profile)
+                    st.session_state["matched_jobs"] = jobs
+                except FileNotFoundError as e:
+                    st.error(str(e))
+                except Exception as e:
+                    st.error(f"Job search failed: {e}")
+
+        jobs = st.session_state.get("matched_jobs")
+        if jobs:
+            for j in jobs:
+                with st.container(border=True):
+                    st.markdown(f"**{j['title']}**  ·  relevance: {j['relevance']}")
+                    if j["location"]:
+                        st.caption(j["location"])
+                    st.text(j["content"])
 
 with tab_suggest:
     st.info("Coming in Week 1 (Module 3): CV improvement suggestions for a target role.")
