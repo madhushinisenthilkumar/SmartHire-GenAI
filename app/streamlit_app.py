@@ -75,7 +75,46 @@ with tab_jobs:
                     st.text(j["content"])
 
 with tab_suggest:
-    st.info("Coming in Week 1 (Module 3): CV improvement suggestions for a target role.")
+   with tab_suggest:
+    st.subheader("CV improvement suggestions")
+    profile = st.session_state.get("profile")
+
+    if not profile:
+        st.info("Parse a resume in Tab 1 first.")
+    else:
+        matched_jobs = st.session_state.get("matched_jobs", [])
+        job_options = ["(type my own target job below)"] + [j["title"] for j in matched_jobs]
+        choice = st.selectbox("Target job", job_options)
+
+        if choice == job_options[0]:
+            job_text = st.text_area(
+                "Paste or describe the target job",
+                placeholder="e.g. Data Analyst role requiring SQL, Python, Tableau, 2+ years experience...",
+            )
+        else:
+            job_text = next(j["content"] for j in matched_jobs if j["title"] == choice)
+            st.text(job_text)
+
+        if st.button("Generate suggestions"):
+            if not job_text or not job_text.strip():
+                st.warning("Enter or select a target job first.")
+            else:
+                with st.spinner("Generating suggestions with Gemini..."):
+                    try:
+                        from src.generate.cv_suggestions import generate_cv_suggestions
+                        suggestions = generate_cv_suggestions(profile, job_text)
+                        st.session_state["suggestions"] = suggestions
+                    except Exception as e:
+                        st.error(f"Suggestion generation failed: {e}")
+
+        suggestions = st.session_state.get("suggestions")
+        if suggestions:
+            st.markdown("**Missing skills**")
+            st.write(suggestions.missing_skills or "None identified")
+            st.markdown("**Weak bullet points**")
+            st.write(suggestions.weak_bullet_points or "None identified")
+            st.markdown("**Rewritten summary**")
+            st.info(suggestions.rewritten_summary or "—")
 
 with tab_mentor:
     st.info("Coming in Week 2 (Module 4): AI Career Mentor chatbot with RAG.")
