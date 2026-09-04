@@ -47,7 +47,6 @@ with tab_parse:
                 st.json(profile.model_dump())
 
 with tab_jobs:
-   with tab_jobs:
     st.subheader("Jobs matched to your profile")
     profile = st.session_state.get("profile")
 
@@ -75,7 +74,6 @@ with tab_jobs:
                     st.text(j["content"])
 
 with tab_suggest:
-   with tab_suggest:
     st.subheader("CV improvement suggestions")
     profile = st.session_state.get("profile")
 
@@ -99,13 +97,18 @@ with tab_suggest:
             if not job_text or not job_text.strip():
                 st.warning("Enter or select a target job first.")
             else:
-                with st.spinner("Generating suggestions with Gemini..."):
-                    try:
-                        from src.generate.cv_suggestions import generate_cv_suggestions
-                        suggestions = generate_cv_suggestions(profile, job_text)
-                        st.session_state["suggestions"] = suggestions
-                    except Exception as e:
-                        st.error(f"Suggestion generation failed: {e}")
+                from src.safety.guardrails import check_input
+                check = check_input(job_text)
+                if not check["allowed"]:
+                    st.warning(check["reason"])
+                else:
+                    with st.spinner("Generating suggestions with Gemini..."):
+                        try:
+                            from src.generate.cv_suggestions import generate_cv_suggestions
+                            suggestions = generate_cv_suggestions(profile, job_text)
+                            st.session_state["suggestions"] = suggestions
+                        except Exception as e:
+                            st.error(f"Suggestion generation failed: {e}")
 
         suggestions = st.session_state.get("suggestions")
         if suggestions:
@@ -115,6 +118,39 @@ with tab_suggest:
             st.write(suggestions.weak_bullet_points or "None identified")
             st.markdown("**Rewritten summary**")
             st.info(suggestions.rewritten_summary or "—")
-
 with tab_mentor:
-    st.info("Coming in Week 2 (Module 4): AI Career Mentor chatbot with RAG.")
+    st.subheader("AI Career Mentor")
+    st.caption("Answers are grounded in the career notes knowledge base — it will say so if it doesn't know.")
+
+    if "mentor_history" not in st.session_state:
+        st.session_state["mentor_history"] = []
+
+    for role, text in st.session_state["mentor_history"]:
+        with st.chat_message(role):
+            st.write(text)
+
+    question = st.chat_input("Ask a career question...")
+    if question:
+        from src.safety.guardrails import check_input
+        check = check_input(question)
+
+        st.session_state["mentor_history"].append(("user", question))
+        with st.chat_message("user"):
+            st.write(question)
+        with st.chat_message("assistant"):
+            if not check["allowed"]:
+                st.warning(check["reason"])
+                st.session_state["mentor_history"].append(("assistant", check["reason"]))
+            else:
+                with st.spinner("Thinking..."):
+                    try:
+                        from src.mentor.rag_chain import ask_mentor
+                        result = ask_mentor(question)
+                        st.write(result["answer"])
+                        if result["sources"]:
+                            st.caption("Sources: " + ", ".join(s.split("/")[-1] for s in result["sources"]))
+                        st.session_state["mentor_history"].append(("assistant", result["answer"]))
+                    except FileNotFoundError as e:
+                        st.error(str(e))
+                    except Exception as e:
+                        st.error(f"Mentor failed: {e}")
