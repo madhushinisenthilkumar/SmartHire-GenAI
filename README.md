@@ -9,10 +9,10 @@ Built with: Google Gemini · Embeddings · FAISS · LangChain · Streamlit
 ## Status
 - [x] Project scaffold
 - [x] Module 1: Resume Parser (structured output)
-- [ ] Module 2: Semantic Job Search (FAISS)
-- [ ] Module 3: CV Improvement Generator
-- [ ] Module 4: AI Career Mentor (RAG)
-- [ ] Module 5: Guardrails
+- [x] Module 2: Semantic Job Search (FAISS)
+- [x] Module 3: CV Improvement Generator
+- [x] Module 4: AI Career Mentor (RAG)
+- [x] Module 5: Guardrails
 - [ ] Module 6: Deploy on Streamlit Community Cloud
 
 ## Setup
