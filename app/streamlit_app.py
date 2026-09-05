@@ -118,6 +118,7 @@ with tab_suggest:
             st.write(suggestions.weak_bullet_points or "None identified")
             st.markdown("**Rewritten summary**")
             st.info(suggestions.rewritten_summary or "—")
+            
 with tab_mentor:
     st.subheader("AI Career Mentor")
     st.caption("Answers are grounded in the career notes knowledge base — it will say so if it doesn't know.")
