@@ -97,10 +97,18 @@ with tab_suggest:
             if not job_text or not job_text.strip():
                 st.warning("Enter or select a target job first.")
             else:
-                from src.safety.guardrails import check_input
-                check = check_input(job_text)
-                if not check["allowed"]:
-                    st.warning(check["reason"])
+                # Only guardrail-check free-typed input — selected job listings
+                # are already-trusted data from our own index, not user input.
+                is_typed = (choice == job_options[0])
+                blocked_reason = None
+                if is_typed:
+                    from src.safety.guardrails import check_input
+                    check = check_input(job_text)
+                    if not check["allowed"]:
+                        blocked_reason = check["reason"]
+
+                if blocked_reason:
+                    st.warning(blocked_reason)
                 else:
                     with st.spinner("Generating suggestions with Gemini..."):
                         try:
