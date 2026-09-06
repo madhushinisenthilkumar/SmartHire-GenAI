@@ -41,4 +41,4 @@ See `src/` for the pipeline code (parsing, search, generate, mentor, safety) and
 `app/streamlit_app.py` for the UI. Full layout in the project brief.
 
 ## Demo
-_Deployed link goes here once Module 6 is done._
+(https://smarthire-genai-eaahy6zujdbfzohsytewxp.streamlit.app/)
